@@ -2,8 +2,8 @@ import os
 
 
 class AppliedAIProfessor:
-    def __init__(self, openai_wrapper, script_path, socketio, do_not_generate_audio=True,
-                 do_not_generate_response=True):
+    def __init__(self, openai_wrapper, script_path, socketio, do_not_generate_audio=False,
+                 do_not_generate_response=False):
         self.openai_wrapper = openai_wrapper
         self.script_path = script_path
         self.socketio = socketio  # Store the socketio instance
@@ -53,7 +53,7 @@ class AppliedAIProfessor:
             answer = self.generate_text_response_for_question(question)
             response_audio_path = self.openai_wrapper.generate_audio(answer, "response.mp3", self.do_not_generate_audio)
             self.stream_audio_to_students(response_audio_path)
-            question['answered'] = True  # Mark question as answered
+            question['answered'] = True
 
         print("[AppliedAiProfessor.pause_for_questions] Resuming class...")
 
@@ -71,3 +71,16 @@ class AppliedAIProfessor:
     def generate_audio_from_text(self, text, filename):
         print(f"[AppliedAiProfessor.generate_audio_from_text] Generating audio for text: {text}")
         return self.openai_wrapper.generate_audio(text, filename, self.do_not_generate_audio)
+
+    # Triggers the wrapper.setup_rag_assistant method
+    def trigger_support_content_upload(self):
+        print(f"[AppliedAiProfessor.trigger_support_content_upload] Triggering support content upload")
+        assistant, vector_store = self.openai_wrapper.setup_rag_assistant()
+        print(
+            f"[AppliedAiProfessor.trigger_support_content_upload] Assistant: {assistant.id}, Vector Store: {vector_store.id}")
+
+    def generate_answer_from_rag_query(self, student_question, current_lecture):
+        print(f"[AppliedAiProfessor.run_rag_query] Running RAG query for question: '{student_question}'")
+        rag_response = self.openai_wrapper.run_rag_query(student_question, current_lecture)
+        print(f"[AppliedAiProfessor.run_rag_query] Response: {rag_response}")
+        return rag_response

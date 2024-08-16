@@ -38,7 +38,25 @@ def stream_audio(filename):
     try:
         return send_file(file_path, mimetype='audio/mp3')
     except FileNotFoundError:
-        return "Audio file not found", 404
+        return f"Audio file '{filename}' not found at {file_path}", 404
+
+
+@app.route('/upload_supporting_files')
+def upload_supporting_files():
+    print("[Backend][upload_supporting_files] Uploading supporting files...")
+    professor.trigger_support_content_upload()
+    return "Supporting files uploaded successfully!", 200
+
+
+# Method that generates a response for a question using rag, calling professor.generate_answer_from_rag_query
+@app.route('/generate_answer_from_rag_query')
+def generate_answer_from_rag_query():
+    print("[Backend][generate_answer_from_rag_query] Generating answer from RAG query...")
+    student_question = "What is the definition of a derivative?"
+    current_lecture = "Lecture 1"
+    response = professor.generate_answer_from_rag_query(student_question, current_lecture)
+    print(f"[Backend][generate_answer_from_rag_query] Response: {response}")
+    return response, 200
 
 
 # WebSocket event to start the class

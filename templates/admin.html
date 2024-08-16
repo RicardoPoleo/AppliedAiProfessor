@@ -10,23 +10,28 @@
             background-color: #f8f9fa;
             padding: 20px;
         }
+
         h1, h2 {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .panel {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .form-group label {
             font-weight: bold;
         }
+
         .btn {
             margin-right: 10px;
             margin-bottom: 10px;
         }
+
         #responses {
             margin-top: 20px;
             padding: 10px;
@@ -39,124 +44,151 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mb-4">Admin Panel</h1>
-        <div class="panel">
-            <h2>Class Status: <span id="class-status" class="badge badge-secondary">Not Started</span></h2>
+<div class="container">
+    <h1 class="mb-4">Admin Panel</h1>
+    <div class="panel">
+        <h2>Class Status: <span id="class-status" class="badge badge-secondary">Not Started</span></h2>
 
-            <!-- Message to be streamed to students -->
-            <div class="form-group">
-                <label for="message">Message:</label>
-                <input type="text" id="message" class="form-control" value="Hello students! We will wait for 5 minutes before starting the class.">
-                <button onclick="sendMessage()" class="btn btn-primary mt-2">Send</button>
-            </div>
-
-            <hr>
-
-            <!-- Buttons to control the class -->
-            <div class="d-flex flex-wrap justify-content-center">
-                <button onclick="startClass()" class="btn btn-success">Start Class</button>
-                <button onclick="pauseClass()" class="btn btn-warning">Answer Questions</button>
-                <button onclick="resumeClass()" class="btn btn-info">Resume Class</button>
-                <button onclick="endClass()" class="btn btn-danger">End Class</button>
-            </div>
-
-            <hr>
-
-            <!-- Admin ability to send a question -->
-            <div class="form-group">
-                <label for="admin-name">Student Name:</label>
-                <input type="text" id="admin-name" class="form-control" placeholder="Enter student's name">
-            </div>
-            <div class="form-group">
-                <label for="admin-question">Question:</label>
-                <input type="text" id="admin-question" class="form-control" placeholder="Enter the question">
-            </div>
-            <div class="form-group">
-                <label for="voice-model">Select Voice Model:</label>
-                <select id="voice-model" class="form-control">
-                    <option value="alloy">Alloy</option>
-                    <option value="echo">Echo</option>
-                    <option value="fable">Fable</option>
-                    <option value="onyx">Onyx</option>
-                    <option value="nova">Nova</option>
-                    <option value="shimmer">Shimmer</option>
-                </select>
-            </div>
-            <button onclick="submitAdminQuestion()" class="btn btn-secondary mt-2">Send Question</button>
-
-            <hr>
-
-            <!-- Display of submitted questions and responses -->
-            <h3>Submitted Questions:</h3>
-            <div id="responses"></div>
+        <!-- Message to be streamed to students -->
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <input type="text" id="message" class="form-control"
+                   value="Hello students! We will wait for 5 minutes before starting the class.">
+            <button onclick="sendMessage()" class="btn btn-primary mt-2">Send</button>
         </div>
+
+        <hr>
+
+        <!-- Buttons to control the class -->
+        <div class="d-flex flex-wrap justify-content-center">
+            <button onclick="startClass()" class="btn btn-success">Start Class</button>
+            <button onclick="uploadSupportingFiles()" class="btn btn-success">Upload Supporting files</button>
+            <button onclick="generateResponseFromRag()" class="btn btn-success">Generate RAG-ed (xD) response</button>
+            <button onclick="pauseClass()" class="btn btn-warning">Answer Questions</button>
+            <button onclick="resumeClass()" class="btn btn-info">Resume Class</button>
+            <button onclick="endClass()" class="btn btn-danger">End Class</button>
+        </div>
+
+        <hr>
+
+        <!-- Admin ability to send a question -->
+        <div class="form-group">
+            <label for="admin-name">Student Name:</label>
+            <input type="text" id="admin-name" class="form-control" placeholder="Enter student's name">
+        </div>
+        <div class="form-group">
+            <label for="admin-question">Question:</label>
+            <input type="text" id="admin-question" class="form-control" placeholder="Enter the question">
+        </div>
+        <div class="form-group">
+            <label for="voice-model">Select Voice Model:</label>
+            <select id="voice-model" class="form-control">
+                <option value="alloy">Alloy</option>
+                <option value="echo">Echo</option>
+                <option value="fable">Fable</option>
+                <option value="onyx">Onyx</option>
+                <option value="nova">Nova</option>
+                <option value="shimmer">Shimmer</option>
+            </select>
+        </div>
+        <button onclick="submitAdminQuestion()" class="btn btn-secondary mt-2">Send Question</button>
+
+        <hr>
+
+        <!-- Display of submitted questions and responses -->
+        <h3>Submitted Questions:</h3>
+        <div id="responses"></div>
     </div>
+</div>
 
-    <!-- Socket.io and Bootstrap JS -->
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-    <script>
-        var socket = io();
+<!-- Socket.io and Bootstrap JS -->
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+    var socket = io();
 
-        // Function to start the class
-        function startClass() {
-            socket.emit('start_class');
-            document.getElementById('class-status').textContent = 'Ongoing';
-            document.getElementById('class-status').classList.replace('badge-secondary', 'badge-success');
-        }
+    // Function to start the class
+    function startClass() {
+        socket.emit('start_class');
+        document.getElementById('class-status').textContent = 'Ongoing';
+        document.getElementById('class-status').classList.replace('badge-secondary', 'badge-success');
+    }
 
-        // Function to pause the class
-        function pauseClass() {
-            socket.emit('pause_class');
-            document.getElementById('class-status').textContent = 'Paused';
-            document.getElementById('class-status').classList.replace('badge-success', 'badge-warning');
-        }
-
-        // Function to resume the class
-        function resumeClass() {
-            socket.emit('resume_class');
-            document.getElementById('class-status').textContent = 'Ongoing';
-            document.getElementById('class-status').classList.replace('badge-warning', 'badge-success');
-        }
-
-        // Function to end the class
-        function endClass() {
-            socket.emit('end_class');
-            document.getElementById('class-status').textContent = 'Ended';
-            document.getElementById('class-status').classList.replace('badge-success', 'badge-danger');
-        }
-
-        // Function to send a message to be streamed to students
-        function sendMessage() {
-            var message = document.getElementById('message').value;
-            socket.emit('stream_message', {message: message});
-        }
-
-        // Function to submit a question from the admin panel
-        function submitAdminQuestion() {
-            const studentName = document.getElementById('admin-name').value.trim();
-            const question = document.getElementById('admin-question').value.trim();
-            const voiceModel = document.getElementById('voice-model').value;
-
-            if (studentName === "" || question === "") {
-                alert("Please enter both the student's name and the question.");
-                return;
-            }
-
-            socket.emit('submit_admin_question', {
-                question: question,
-                name: studentName,
-                voice_model: voiceModel
+    function uploadSupportingFiles() {
+        //Make a request to /upload_supporting_files
+        fetch('/upload_supporting_files')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Supporting files uploaded successfully!')
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
+    }
+
+    function generateResponseFromRag() {
+        fetch('/generate_answer_from_rag_query')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Response generated successfully! Check the logs for the response.')
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function pauseClass() {
+        socket.emit('pause_class');
+        document.getElementById('class-status').textContent = 'Paused';
+        document.getElementById('class-status').classList.replace('badge-success', 'badge-warning');
+    }
+
+    // Function to resume the class
+    function resumeClass() {
+        socket.emit('resume_class');
+        document.getElementById('class-status').textContent = 'Ongoing';
+        document.getElementById('class-status').classList.replace('badge-warning', 'badge-success');
+    }
+
+    // Function to end the class
+    function endClass() {
+        socket.emit('end_class');
+        document.getElementById('class-status').textContent = 'Ended';
+        document.getElementById('class-status').classList.replace('badge-success', 'badge-danger');
+    }
+
+    // Function to send a message to be streamed to students
+    function sendMessage() {
+        var message = document.getElementById('message').value;
+        socket.emit('stream_message', {message: message});
+    }
+
+    // Function to submit a question from the admin panel
+    function submitAdminQuestion() {
+        const studentName = document.getElementById('admin-name').value.trim();
+        const question = document.getElementById('admin-question').value.trim();
+        const voiceModel = document.getElementById('voice-model').value;
+
+        if (studentName === "" || question === "") {
+            alert("Please enter both the student's name and the question.");
+            return;
         }
 
-        // Function to handle received responses from the server
-        socket.on('receive_response', function (data) {
-            var responsesDiv = document.getElementById('responses');
-            var responseElem = document.createElement('p');
-            responseElem.textContent = `Q: ${data.question} - A: ${data.response}`;
-            responsesDiv.appendChild(responseElem);
+        socket.emit('submit_admin_question', {
+            question: question,
+            name: studentName,
+            voice_model: voiceModel
         });
-    </script>
+    }
+
+    // Function to handle received responses from the server
+    socket.on('receive_response', function (data) {
+        var responsesDiv = document.getElementById('responses');
+        var responseElem = document.createElement('p');
+        responseElem.textContent = `Q: ${data.question} - A: ${data.response}`;
+        responsesDiv.appendChild(responseElem);
+    });
+</script>
 </body>
 </html>
