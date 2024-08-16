@@ -1,0 +1,12 @@
+bidict==0.23.1
+Flask-SocketIO==5.3.6
+mkl-service==2.4.1
+PyQt5==5.15.10
+python-dotenv==1.0.1
+python-engineio==4.9.1
+python-socketio==5.11.3
+pywin32==306
+simple-websocket==1.0.0
+six==1.16.0
+webencodings==0.5.1
+wsproto==1.2.0
