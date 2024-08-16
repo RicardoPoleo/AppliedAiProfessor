@@ -1,4 +1,11 @@
 import os
+import random
+
+
+def generate_random_audio_name():
+    random_number = random.randint(0, 1000)
+    name_of_file = f'stream_message_{random_number}.mp3'
+    return name_of_file
 
 
 class AppliedAIProfessor:
@@ -50,18 +57,25 @@ class AppliedAIProfessor:
         print(f"[AppliedAiProfessor.pause_for_questions] Questions: {questions}")
         unanswered_questions = [q for q in questions if not q['answered']]
         for question in unanswered_questions:
-            answer = self.generate_text_response_for_question(question)
-            response_audio_path = self.openai_wrapper.generate_audio(answer, "response.mp3", self.do_not_generate_audio)
-            self.stream_audio_to_students(response_audio_path)
+            # This works but is not rag related
+            # answer = self.generate_text_response_for_question(question)
+
+            # This is the RAG related code
+            answer = self.generate_answer_from_rag_query(question, self.get_current_lecture_name())
+
+            response_filename = generate_random_audio_name()
+
+            response_audio_path = self.openai_wrapper.generate_audio(answer, response_filename, False)
+            print(f"[AppliedAiProfessor.pause_for_questions] Generated audio response: {response_audio_path}")
             question['answered'] = True
+            self.stream_audio_to_students(response_filename)
 
         print("[AppliedAiProfessor.pause_for_questions] Resuming class...")
 
     def generate_text_response_for_question(self, question):
-        print(
-            f"[AppliedAiProfessor.generate_text_response_for_question] Student '{question['name']}' asked '{question['question']}'")
+        print(f"[AppliedAiProfessor.generate_text_response_for_question] "
+              f"Student '{question['name']}' asked '{question['question']}'")
         answer = self.openai_wrapper.generate_response(question, self.do_not_generate_response)
-        print(f"[AppliedAiProfessor.generate_text_response_for_question] Answer: {answer}")
         return answer
 
     def stream_audio_to_students(self, file_path):
@@ -79,8 +93,11 @@ class AppliedAIProfessor:
         print(
             f"[AppliedAiProfessor.trigger_support_content_upload] Assistant: {assistant.id}, Vector Store: {vector_store.id}")
 
-    def generate_answer_from_rag_query(self, student_question, current_lecture):
-        print(f"[AppliedAiProfessor.run_rag_query] Running RAG query for question: '{student_question}'")
-        rag_response = self.openai_wrapper.run_rag_query(student_question, current_lecture)
+    def generate_answer_from_rag_query(self, question, current_lecture):
+        print(f"[AppliedAiProfessor.run_rag_query] Running RAG query for question: '{question}'")
+        rag_response = self.openai_wrapper.run_rag_query(question, current_lecture)
         print(f"[AppliedAiProfessor.run_rag_query] Response: {rag_response}")
         return rag_response
+
+    def get_current_lecture_name(self):
+        return "Lecture 1"

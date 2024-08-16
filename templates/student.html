@@ -55,7 +55,7 @@
             <input type="text" id="studentNameInput" class="form-control" placeholder="Enter your name" value="Ricardo">
         </div>
         <div class="form-group">
-            <input type="text" id="questionInput" class="form-control" placeholder="Ask a question..." value="How much is 1 + 1?">
+            <input type="text" id="questionInput" class="form-control" placeholder="Ask a question..." value="What is the definition of thermodynamic?">
         </div>
         <button onclick="submitQuestion()" class="btn btn-primary">Submit Question</button>
 
@@ -117,6 +117,7 @@
         }
 
         socket.on('next_audio_chunk', function (data) {
+            console.log("Playing next audio chunk...", data);
             playAudio(data.audioFile);
         });
 

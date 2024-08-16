@@ -105,14 +105,20 @@ class OpenAIWrapper:
         print(f"[OpenAIWrapper.setup_rag_assistant] File counts: {self.file_batch.file_counts}")
         return self.assistant, self.vector_store
 
-    def run_rag_query(self, student_question: str, current_lecture: str, handler=None):
-        print(f"[OpenAIWrapper.run_rag_query] Running RAG query for question: '{student_question}'")
+    def run_rag_query(self, question: str, current_lecture: str, handler=None):
+        print(f"[OpenAIWrapper.run_rag_query] Running RAG query for question: '{question}'")
 
         if not self.assistant or not self.vector_store:
             raise ValueError("RAG assistant or vector store not set up. Please call setup_rag_assistant first.")
 
+        question_text = ""
+        if "question" not in question:
+            question_text = question
+        else:
+            question_text = question["question"]
+
         self.thread = self.client.beta.threads.create(
-            messages=[{"role": "user", "content": student_question}],
+            messages=[{"role": "user", "content": question_text}],
             tool_resources={
                 "file_search": {
                     "vector_store_ids": [self.vector_store.id]
@@ -124,10 +130,14 @@ class OpenAIWrapper:
                                   "If it appears in another Lecture that is not the current lecture,"
                                   " reply explaining that the concept is out of the scope of this class "
                                   "(in a friendly manner), since it will be explained in the lecture X, where X is the "
-                                  "lecture where it appears.")
+                                  "lecture where it appears."
+                                  "If the concept is not in any lecture, reply that the concept is not in the material but we can review it after the class."
+                                  "If the concept is in the current lecture, reply with the explanation.")
 
         length_limitation = "Keep your answers short, no longer than 2 sentences."
-        tone_instructions = "Answer in a friendly and formal manner."
+        student_name = question["name"] if "name" in question else "No name provided"
+        tone_instructions = (f"Answer in a friendly and formal manner. Always refer to the student by their name. "
+                             f"This student is named {student_name}.")
 
         instruction_text = f"We are currently on {current_lecture}. {instruction_for_search}. {length_limitation}. {tone_instructions}"
 

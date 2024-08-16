@@ -92,7 +92,6 @@ def generate_random_audio_name():
     return name_of_file
 
 
-# WebSocket event to handle question submission
 @socketio.on('submit_question')
 def handle_question(data):
     question = data['question']
@@ -102,14 +101,12 @@ def handle_question(data):
     emit('receive_response', {'response': "Your question has been received.", 'question': question}, broadcast=True)
 
 
-# WebSocket event to pause the class
 @socketio.on('pause_class')
 def handle_pause_class():
     print("[Backend][handle_pause_class] Pausing the class session.")
     professor.handle_pending_questions(questions)
 
 
-# This method takes the question and generates a response
 @socketio.on('submit_admin_question')
 def handle_generate_response_for_admin(data):
     print(f'[Backend][handle_generate_response] Generating response for question {data["question"]}')
@@ -126,7 +123,6 @@ def handle_generate_response_for_admin(data):
     socketio.emit('next_audio_chunk', {'audioFile': name_of_file})
 
 
-# WebSocket event to resume the class
 @socketio.on('resume_class')
 def handle_resume_class():
     print("[Backend][handle_resume_class] Resuming the class session.")
@@ -145,7 +141,6 @@ def handle_end_class():
 
 
 if __name__ == '__main__':
-    # Print Python version
     print(f"Python version: {os.system('python --version')}")
 
     if not os.path.exists('audio'):
