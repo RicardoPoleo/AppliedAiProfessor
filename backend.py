@@ -127,6 +127,9 @@ def handle_end_class():
 
 
 if __name__ == '__main__':
+    # Print Python version
+    print(f"Python version: {os.system('python --version')}")
+
     if not os.path.exists('audio'):
         os.makedirs('audio')
 
