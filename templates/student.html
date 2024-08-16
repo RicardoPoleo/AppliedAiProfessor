@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 201 Class</title>
+    <!-- Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #statusMessage {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        #audioPlayer {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        #timer {
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        #responses {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student's View: Math 201</h1>
+        <div id="statusMessage" class="alert alert-info">Please wait before the class begins...</div>
+
+        <audio id="audioPlayer" controls class="mb-3"></audio>
+
+        <div class="form-group">
+            <input type="text" id="studentNameInput" class="form-control" placeholder="Enter your name" value="Ricardo">
+        </div>
+        <div class="form-group">
+            <input type="text" id="questionInput" class="form-control" placeholder="Ask a question..." value="How much is 1 + 1?">
+        </div>
+        <button onclick="submitQuestion()" class="btn btn-primary">Submit Question</button>
+
+        <div id="responses" class="mt-4"></div>
+
+        <div id="timer" class="mt-4">00:00</div>
+    </div>
+
+    <!-- Socket.io and Bootstrap JS -->
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        console.log("Loading student's view...");
+        var socket = io();
+        var statusMessage = document.getElementById('statusMessage');
+        var audioPlayer = document.getElementById('audioPlayer');
+        var studentNameInput = document.getElementById('studentNameInput');
+        var questionInput = document.getElementById('questionInput');
+        var submitButton = document.querySelector('button');
+        var timerElement = document.getElementById('timer');
+        var timerInterval;
+
+        // Handle class start event
+        socket.on('start_class', function (data) {
+            console.log("Class has started. Please listen to the audio and ask questions.");
+            playAudio(data.audioFile);
+            statusMessage.style.display = 'none';
+            audioPlayer.style.display = 'block';
+            questionInput.style.display = 'inline';
+            submitButton.style.display = 'inline';
+        });
+
+        function playAudio(filename) {
+            console.log("Playing audio: " + filename);
+            audioPlayer.src = '/audio/' + filename;
+            audioPlayer.play();
+            startTimer(60); // Assuming each chunk is 60 seconds
+            audioPlayer.onended = function () {
+                clearInterval(timerInterval);
+                socket.emit('audio_chunk_done');
+            };
+        }
+
+        function startTimer(duration) {
+            console.log("Starting timer..." + duration);
+            var timer = duration, minutes, seconds;
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerElement.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        socket.on('next_audio_chunk', function (data) {
+            playAudio(data.audioFile);
+        });
+
+        function submitQuestion() {
+            const question = questionInput.value.trim();
+            const studentName = studentNameInput.value.trim();
+            if (studentName === "" || question === "") {
+                alert("Please enter both your name and question.");
+                return;
+            }
+            socket.emit('submit_question', {question: question, name: studentName});
+        }
+
+        socket.on('receive_response', function (data) {
+            var responsesDiv = document.getElementById('responses');
+            var responseElem = document.createElement('p');
+            responseElem.textContent = `Q: ${data.question} - A: ${data.response}`;
+            responsesDiv.appendChild(responseElem);
+        });
+
+        socket.on('class_ended', function () {
+            alert("The class has ended.");
+            statusMessage.style.display = 'block';
+            statusMessage.textContent = "The class has ended.";
+            audioPlayer.style.display = 'none';
+            questionInput.style.display = 'none';
+            submitButton.style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>
