@@ -6,16 +6,33 @@
     <title>Admin Panel</title>
 </head>
 <body>
-    <h1>Admin Panel</h1>
-    <button onclick="startClass()">Start Class</button>
+<h1>Admin Panel</h1>
+<button onclick="startClass()">Start Class</button>
+<button onclick="endClass()">End Class</button>
 
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-    <script>
-        var socket = io();
+<button onclick="pauseClass()">Pause Class</button>
+<button onclick="resumeClass()">Resume Class</button>
 
-        function startClass() {
-            socket.emit('start_class');
-        }
-    </script>
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+    var socket = io();
+
+    function startClass() {
+        socket.emit('start_class');
+    }
+
+    function pauseClass() {
+        socket.emit('pause_class');
+    }
+
+    function resumeClass() {
+        socket.emit('resume_class');
+    }
+
+    function endClass() {
+        socket.emit('end_class');
+    }
+
+</script>
 </body>
 </html>

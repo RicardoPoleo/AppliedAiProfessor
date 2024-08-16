@@ -1,12 +1,16 @@
+import os
+
+
 class AppliedAIProfessor:
-    def __init__(self, openai_wrapper, script_path, socketio, do_not_generate_audio=True, do_not_generate_response=True):
+    def __init__(self, openai_wrapper, script_path, socketio, do_not_generate_audio=True,
+                 do_not_generate_response=True):
         self.openai_wrapper = openai_wrapper
         self.script_path = script_path
         self.socketio = socketio  # Store the socketio instance
         self.do_not_generate_audio = do_not_generate_audio
         self.do_not_generate_response = do_not_generate_response
         self.chunks = []
-        self.chunk_size = 15
+        self.chunk_size = 20
         self.current_chunk_index = 0  # Track the current chunk index
 
     def load_script_from_file(self):
@@ -28,13 +32,15 @@ class AppliedAIProfessor:
         self.socketio.emit('start_class', {'audioFile': first_chunk})  # Emit start_class event to clients
 
     def get_next_chunk(self):
+        print(f"[AppliedAiProfessor.get_next_chunk] Current chunk index: {len(self.chunks)}/{self.current_chunk_index}")
         if self.current_chunk_index < len(self.chunks):
             chunk_text = self.chunks[self.current_chunk_index]
             print(f"[AppliedAiProfessor.get_next_chunk] Chunk #{self.current_chunk_index + 1}. Text: '{chunk_text}'")
-            audio_file = self.openai_wrapper.generate_audio(chunk_text, f"speech_chunk_{self.current_chunk_index + 1}.mp3", self.do_not_generate_audio)
-            print(f"[AppliedAiProfessor.get_next_chunk] audio_file {audio_file}")
+            audio_file = self.openai_wrapper.generate_audio(chunk_text,
+                                                            f"speech_chunk_{self.current_chunk_index + 1}.mp3",
+                                                            self.do_not_generate_audio)
             self.current_chunk_index += 1
-            return audio_file
+            return os.path.basename(audio_file)  # Return only the filename
         else:
             return None
 
