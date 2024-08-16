@@ -127,4 +127,13 @@ def handle_end_class():
 
 
 if __name__ == '__main__':
+    if not os.path.exists('audio'):
+        os.makedirs('audio')
+
+    if not os.path.exists('templates'):
+        os.makedirs('templates')
+
+    if not os.path.exists('texts'):
+        os.makedirs('texts')
+
     socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
