@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Math 201: Admin's Panel</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             background-color: #f8f9fa;
             padding: 20px;
+            font-family: 'Arial', sans-serif;
         }
 
         h1, h2 {
@@ -18,9 +19,9 @@
 
         .panel {
             background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .form-group label {
@@ -30,54 +31,72 @@
         .btn {
             margin-right: 10px;
             margin-bottom: 10px;
+            min-width: 150px;
         }
 
         #responses {
             margin-top: 20px;
-            padding: 10px;
-            background-color: #ffffff;
+            padding: 15px;
+            background-color: #f1f1f1;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            max-height: 200px;
+            border-radius: 8px;
+            max-height: 300px;
             overflow-y: auto;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .section-header {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        hr {
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1 class="mb-4">Admin Panel</h1>
+    <h1 class="mb-4">Admin Panel - Applied AI Professor</h1>
+    <h2>Math 201: Lecture 1</h2>
     <div class="panel">
-        <h2>Class Status: <span id="class-status" class="badge badge-secondary">Not Started</span></h2>
+        <h3 class="section-header">Class Status: <span id="class-status" class="badge badge-secondary">Not Started</span></h3>
 
         <!-- Message to be streamed to students -->
         <div class="form-group">
-            <label for="message">Message:</label>
+            <label for="message">Broadcast Message to Students:</label>
             <input type="text" id="message" class="form-control"
                    value="Hello students! We will wait for 5 minutes before starting the class.">
-            <button onclick="sendMessage()" class="btn btn-primary mt-2">Send</button>
+            <button onclick="sendMessage()" class="btn btn-primary mt-2 btn-block">Send Message</button>
         </div>
 
         <hr>
 
         <!-- Buttons to control the class -->
-        <div class="d-flex flex-wrap justify-content-center">
-            <button onclick="startClass()" class="btn btn-success">Start Class</button>
-            <button onclick="uploadSupportingFiles()" class="btn btn-success">Upload Supporting files</button>
-            <button onclick="generateResponseFromRag()" class="btn btn-success">Generate RAG-ed (xD) response</button>
-            <button onclick="pauseClass()" class="btn btn-warning">Answer Questions</button>
-            <button onclick="resumeClass()" class="btn btn-info">Resume Class</button>
-            <button onclick="endClass()" class="btn btn-danger">End Class</button>
+        <div class="form-group">
+            <label class="section-header">Control the Class:</label>
+            <div class="d-flex flex-wrap justify-content-center">
+                <button onclick="startClass()" class="btn btn-success">Start Class</button>
+                <button onclick="uploadSupportingFiles()" class="btn btn-success">Upload Supporting Files</button>
+                <button onclick="pauseClass()" class="btn btn-warning">Answer questions</button>
+                <button onclick="resumeClass()" class="btn btn-info">Resume Class</button>
+                <button onclick="endClass()" class="btn btn-danger">End Class</button>
+            </div>
         </div>
 
         <hr>
 
         <!-- Admin ability to send a question -->
         <div class="form-group">
-            <label for="admin-name">Student Name:</label>
+            <label class="section-header" for="admin-name">Submit a Question as a Student:</label>
             <input type="text" id="admin-name" class="form-control" placeholder="Enter student's name">
         </div>
         <div class="form-group">
-            <label for="admin-question">Question:</label>
             <input type="text" id="admin-question" class="form-control" placeholder="Enter the question">
         </div>
         <div class="form-group">
@@ -91,12 +110,12 @@
                 <option value="shimmer">Shimmer</option>
             </select>
         </div>
-        <button onclick="submitAdminQuestion()" class="btn btn-secondary mt-2">Send Question</button>
+        <button onclick="submitAdminQuestion()" class="btn btn-secondary mt-2 btn-block">Submit Question</button>
 
         <hr>
 
         <!-- Display of submitted questions and responses -->
-        <h3>Submitted Questions:</h3>
+        <h3 class="section-header">Submitted Questions:</h3>
         <div id="responses"></div>
     </div>
 </div>
@@ -114,24 +133,11 @@
     }
 
     function uploadSupportingFiles() {
-        //Make a request to /upload_supporting_files
         fetch('/upload_supporting_files')
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                alert('Supporting files uploaded successfully!')
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
-    function generateResponseFromRag() {
-        fetch('/generate_answer_from_rag_query')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                alert('Response generated successfully! Check the logs for the response.')
+                alert('Supporting files uploaded successfully!');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -140,7 +146,7 @@
 
     function pauseClass() {
         socket.emit('pause_class');
-        document.getElementById('class-status').textContent = 'Paused';
+        document.getElementById('class-status').textContent = 'Answering Questions';
         document.getElementById('class-status').classList.replace('badge-success', 'badge-warning');
     }
 

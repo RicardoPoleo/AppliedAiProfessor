@@ -3,62 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 201 Class</title>
+    <title>Math 201: Student's Classroom</title>
     <!-- Bootstrap CSS for styling -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             background-color: #f8f9fa;
             padding: 20px;
+            font-family: 'Arial', sans-serif;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            font-size: 2em;
+            color: #333;
         }
+
         #statusMessage {
             margin-bottom: 20px;
             text-align: center;
             font-size: 1.2em;
         }
+
         #audioPlayer {
             width: 100%;
             margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .form-group label {
+            font-weight: bold;
         }
+
+        .form-control {
+            border-radius: 8px;
+        }
+
+        .btn {
+            min-width: 150px;
+            margin-top: 10px;
+        }
+
         #timer {
             font-weight: bold;
             text-align: center;
             font-size: 1.5em;
             margin-top: 20px;
+            color: #007bff;
         }
+
         #responses {
             margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #responses p {
+            margin: 10px 0;
             padding: 10px;
             background-color: #ffffff;
-            border: 1px solid #ddd;
             border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Student's View: Math 201</h1>
-        <div id="statusMessage" class="alert alert-info">Please wait before the class begins...</div>
+        <h1>Math 201: Student's Classroom</h1>
+        <div id="statusMessage" class="alert alert-info">Please wait while the class begins...</div>
 
-        <audio id="audioPlayer" controls class="mb-3"></audio>
+        <audio id="audioPlayer" controls class="mb-3" style="display:none;"></audio>
 
         <div class="form-group">
+            <label for="studentNameInput">Your Name:</label>
             <input type="text" id="studentNameInput" class="form-control" placeholder="Enter your name" value="Ricardo">
         </div>
         <div class="form-group">
-            <input type="text" id="questionInput" class="form-control" placeholder="Ask a question..." value="What is the definition of thermodynamic?">
+            <label for="questionInput">Ask a Question:</label>
+            <input type="text" id="questionInput" class="form-control" placeholder="Type your question here...">
         </div>
-        <button onclick="submitQuestion()" class="btn btn-primary">Submit Question</button>
+        <button onclick="submitQuestion()" class="btn btn-primary btn-block">Submit Question</button>
 
+        <hr>
+
+        <h3 class="section-header">Questions & Answers</h3>
         <div id="responses" class="mt-4"></div>
 
         <div id="timer" class="mt-4">00:00</div>
@@ -83,8 +123,8 @@
             playAudio(data.audioFile);
             statusMessage.style.display = 'none';
             audioPlayer.style.display = 'block';
-            questionInput.style.display = 'inline';
-            submitButton.style.display = 'inline';
+            questionInput.style.display = 'block';
+            submitButton.style.display = 'block';
         });
 
         function playAudio(filename) {
